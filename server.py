@@ -67,7 +67,7 @@ def listener(host_key_path, port):
     meta = {}
     fhandle = channel.makefile("rU")
 
-    channel.send("\n{}".format(prompt))
+    channel.send("\r\n{}".format(prompt))
     while True:
         line = fhandle.readline().rstrip()
         print(line)
@@ -99,12 +99,11 @@ def listener(host_key_path, port):
                     ) as fhand:
                         content = fhand.read()
                     channel.send(content)
-                    print(content)
                 except FileNotFoundError:
                     channel.send(
                         '% command file missing for "{}"'.format(line)
                     )
-        channel.send("\n{}".format(prompt))
+        channel.send("\r\n{}".format(prompt))
 
 
 def _spawn(host_key_path, port):

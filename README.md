@@ -47,3 +47,8 @@ vars:
   ansible_port: "{{ 3000 + play_hosts.index(inventory_hostname) }}"
   ansible_host: localhost
 ```
+
+## Note
+
+- It takes a few seond for the connections to timeout
+- Local echo doesn't work when SSHing from the command line
