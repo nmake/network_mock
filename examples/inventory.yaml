@@ -1,0 +1,34 @@
+
+
+all:
+  hosts:
+  children:
+    eos:
+      hosts:
+        eos101:
+      vars:
+        ansible_network_os: eos
+    ios:
+      hosts:
+        ios101:
+      vars:
+        ansible_network_os: ios
+    nxos:
+      hosts:
+        nxos101:
+      vars:
+        ansible_network_os: nxos
+    vyos:
+      hosts:
+        vyos101:
+      vars:
+        ansible_network_os: vyos
+  vars:
+    ansible_user: "{{ lookup('env', 'ansible_ssh_user') }}"
+    ansible_password: "{{ lookup('env', 'ansible_ssh_pass') }}"
+    ansible_become_pass: "{{ lookup('env', 'ansible_become_pass') }}"
+    ansible_become: True
+    ansible_become_method: enable
+    ansible_connection: network_cli
+    ansible_port: "{{ 3000 + play_hosts.index(inventory_hostname) }}"
+    ansible_host: localhost

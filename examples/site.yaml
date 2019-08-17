@@ -1,0 +1,20 @@
+- hosts: all
+  gather_facts: False
+  vars:
+    platform_show:
+      eos: show run
+      ios: show run
+      nxos: show run
+      vyos: show config
+  tasks:
+  - cli_command:
+      command: "meta: hostname={{ inventory_hostname }}"
+  - cli_command:
+      command: "{{ platform_show[ansible_network_os] }}"
+    register: output
+
+- hosts: all
+  gather_facts: False
+  tasks:
+  - debug:
+      var: output['stdout_lines']

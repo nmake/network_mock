@@ -1,0 +1,15 @@
+- hosts: vyos101
+  gather_facts: False
+  tasks:
+  - cli_command:
+      command: "meta: hostname={{ inventory_hostname }}"
+  - vyos_interfaces:
+      state: deleted
+    check_mode: True
+    register: output
+
+- hosts: vyos101
+  gather_facts: False
+  tasks:
+  - debug:
+      var: output

@@ -1,0 +1,11 @@
+set interfaces ethernet eth0 address 'dhcp'
+set interfaces ethernet eth0 duplex 'auto'
+set interfaces ethernet eth0 hw-id '52:54:00:22:8e:73'
+set interfaces ethernet eth0 smp-affinity 'auto'
+set interfaces ethernet eth0 speed 'auto'
+set interfaces ethernet eth1 duplex 'auto'
+set interfaces ethernet eth1 hw-id '52:54:00:2a:09:c8'
+set interfaces ethernet eth1 smp-affinity 'auto'
+set interfaces ethernet eth1 speed 'auto'
+set interfaces ethernet eth2 hw-id '52:54:00:20:a4:b0'
+set interfaces loopback lo

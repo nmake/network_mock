@@ -1,0 +1,30 @@
+! Command: show running-config
+! device: eos101 (vEOS, EOS-4.21.1.1F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+transceiver qsfp default-mode 4x10G
+!
+logging console informational
+!
+hostname eos101
+!
+spanning-tree mode mstp
+!
+no aaa root
+!
+username admin role network-admin secret sha512 $6$loVHtL/JqiTdVOys$Fu2J24FGCxBdJKWcy.P0MR94dqkPOXZlc7NZ4qQzTq09l5CKlPcXgu9tukTpHLS8AFs2xCyHDT/bDIqr06R0w/
+username bthornto secret sha512 $6$aZyullX8RcjfPNc6$w8RZH8UjgAe60GUD6uxzHtf6RPgqJveY0l1unb3NyuWJHWzq.MzdTeYzlDmbtmOOnQMp3a7Z39q6A7C/anR1h.
+!
+interface Ethernet1
+!
+interface Ethernet2
+!
+interface Management1
+   ip address 192.168.101.10/24
+!
+ip route 0.0.0.0/0 192.168.101.1
+!
+no ip routing
+!
+end
