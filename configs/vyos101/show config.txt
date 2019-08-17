@@ -36,45 +36,6 @@ system {
     host-name vyos101
     login {
         user admin {
-admin@vyos101:~$ show config
-interfaces {
-    ethernet eth0 {
-        address dhcp
-        duplex auto
-        hw-id 52:54:00:22:8e:73
-        smp-affinity auto
-        speed auto
-    }
-    ethernet eth1 {
-        duplex auto
-        hw-id 52:54:00:2a:09:c8
-        smp-affinity auto
-        speed auto
-    }
-    ethernet eth2 {
-        hw-id 52:54:00:20:a4:b0
-    }
-    loopback lo {
-    }
-}
-service {
-    lldp {
-    }
-    ssh {
-    }
-}
-system {
-    config-management {
-        commit-revisions 100
-    }
-    console {
-        device ttyS0 {
-            speed 9600
-        }
-    }
-    host-name vyos101
-    login {
-        user admin {
             authentication {
                 encrypted-password ****************
                 plaintext-password ****************

@@ -5,7 +5,7 @@
       command: "meta: hostname={{ inventory_hostname }}"
   - vyos_interfaces:
       state: deleted
-    check_mode: True
+    check_mode: False
     register: output
 
 - hosts: vyos101

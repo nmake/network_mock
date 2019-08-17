@@ -5,6 +5,7 @@ import threading
 import re
 import concurrent.futures
 import paramiko
+import logging
 
 BASE_PORT = 3000
 SERVER_COUNT = 10
@@ -43,22 +44,7 @@ class Server(paramiko.ServerInterface):
         return True
 
 
-def listener(host_key_path, port):
-    host_key = paramiko.RSAKey(filename=host_key_path)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind(("", port))
-
-    sock.listen(100)
-    client, _addr = sock.accept()
-
-    transport = paramiko.Transport(client)
-    # ttransport.set_gss_host(socket.getfqdn(""))
-    transport.load_server_moduli()
-    transport.add_server_key(host_key)
-    server = Server()
-    transport.start_server(server=server)
-
+def run_server(transport):
     channel = transport.accept(20)
     if channel is None:
         sys.exit(1)
@@ -70,7 +56,7 @@ def listener(host_key_path, port):
     channel.send("\r\n{}".format(prompt))
     while True:
         line = fhandle.readline().rstrip()
-        print(line)
+        logger.info("%s: %s", meta.get("hostname", "unknown"), line)
         metacmd = re.match(r"meta: (?P<key>.*)=(?P<value>.*)", line)
         if metacmd:
             cap = metacmd.groupdict()
@@ -106,6 +92,22 @@ def listener(host_key_path, port):
         channel.send("\r\n{}".format(prompt))
 
 
+def listener(host_key_path, port):
+    host_key = paramiko.RSAKey(filename=host_key_path)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(("", port))
+    sock.listen(100)
+    client, addr = sock.accept()
+    logging.info("connection from %s", addr)
+    transport = paramiko.Transport(client)
+    transport.load_server_moduli()
+    transport.add_server_key(host_key)
+    server = Server()
+    transport.start_server(server=server)
+    run_server(transport)
+
+
 def _spawn(host_key_path, port):
     while True:
         try:
@@ -132,4 +134,6 @@ def main():
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger()
+    logging.basicConfig(level=logging.INFO)
     main()

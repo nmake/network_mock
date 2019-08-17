@@ -12,9 +12,5 @@
   - cli_command:
       command: "{{ platform_show[ansible_network_os] }}"
     register: output
-
-- hosts: all
-  gather_facts: False
-  tasks:
   - debug:
       var: output['stdout_lines']
