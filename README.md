@@ -55,6 +55,4 @@ See the examples directory for a few examples
 
 ## Note
 
-- It takes a few seond for the connections to timeout
-- Local echo doesn't work when SSHing from the command line
 - Disabling ssh key checking during development can be done in the ansible.cfg
