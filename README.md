@@ -1,4 +1,4 @@
-[![asciicast](https://asciinema.org/a/DPBOfBH20kzdWaDPDla43SQYb.png)](https://asciinema.org/a/DPBOfBH20kzdWaDPDla43SQYb?speed=0.5&autoplay=1)
+[![asciicast](https://asciinema.org/a/DPBOfBH20kzdWaDPDla43SQYb.png)](https://asciinema.org/a/DPBOfBH20kzdWaDPDla43SQYb?speed=1.5&autoplay=1)
 
 # Network Mock
 
