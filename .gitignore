@@ -1,6 +1,3 @@
-# ansible dist for migration if local
-ansible*
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
