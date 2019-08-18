@@ -1,3 +1,5 @@
+[![asciicast](https://asciinema.org/a/DPBOfBH20kzdWaDPDla43SQYb.png)](https://asciinema.org/a/DPBOfBH20kzdWaDPDla43SQYb?speed=0.5&autoplay=1)
+
 # Network Mock
 
 `network_mock` is a simple ssh server that can respond to network device `show` commands. It was authored as a debugging tool used during local development.
