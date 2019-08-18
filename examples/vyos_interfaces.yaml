@@ -2,7 +2,7 @@
   gather_facts: False
   tasks:
   - cli_command:
-      command: "meta: hostname={{ inventory_hostname }}"
+      command: "#hostname={{ inventory_hostname }}"
   - vyos_interfaces:
       state: deleted
     check_mode: False

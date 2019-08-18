@@ -90,6 +90,8 @@ class NetworkServer:
                 cap.get("conf_mode", "none"),
             )
             self._conf_mode = True
+            return True
+        return False
 
     def _is_exit(self, line):
         if line == "exit":
@@ -98,6 +100,8 @@ class NetworkServer:
                 self._conf_mode = False
             else:
                 self._transport.close()
+            return True
+        return False
 
     def _is_help(self, line):
         command = re.match(r"(\?|help)", line)
@@ -114,9 +118,10 @@ class NetworkServer:
                 "\r\n{:<20}{:<50}".format("!x", "Run cmd from history")
             )
             self._channel.send(
-                "\r\n{:<20}{:<50}".format(
-                    "meta: hostname=xxx", "Set the hostname"
-                )
+                "\r\n{:<20}{:<50}".format("#hostname=xxx", "Set the hostname")
+            )
+            self._channel.send(
+                "\r\n{:<20}{:<50}".format("!hostname=xxx", "Set the hostname")
             )
             if "hostname" in self._session_meta:
                 hostdir = "{}/{}".format(
@@ -129,10 +134,14 @@ class NetworkServer:
                 ]
                 self._channel.send("\r\n\r\nAVAILABLE NETWORK COMMANDS")
                 self._channel.send("\r\n" + "\r\n".join(files) + "\r\n")
+            return True
+        return False
 
     def _is_history(self, line):
+        matched = False
         command = re.match(r"history", line)
         if command:
+            matched = True
             formatted_history = [
                 "{}  {}".format(str(idx).rjust(3), cmd)
                 for idx, cmd in enumerate(self._history)
@@ -140,22 +149,26 @@ class NetworkServer:
             self._channel.send("\r\n" + "\r\n".join(formatted_history))
         command = re.match(r"!(?P<hnum>\d+)", line)
         if command:
+            matched = True
             cap = command.groupdict()
             try:
                 history_command = self._history[int(cap["hnum"])]
-                if not history_command.startswith("!"):
+                if not re.match(r"!(?P<hnum>\d+)", history_command):
                     self._channel.send("\r\n{}".format(history_command))
                     self._handle_command(history_command)
             except IndexError:
                 pass
+        return matched
 
     def _is_meta(self, line):
-        metacmd = re.match(r"meta: (?P<key>.*)=(?P<value>.*)", line)
+        metacmd = re.match(r"[#!](?P<key>.*)=(?P<value>.*)", line)
         if metacmd:
             cap = metacmd.groupdict()
             self._session_meta[cap["key"]] = cap["value"]
             if cap["key"] == "hostname":
                 self._prompt = cap["value"] + "#"
+            return True
+        return False
 
     def _is_show(self, line):
         showcmd = re.match(r"show (?P<value>.*)", line)
@@ -173,6 +186,8 @@ class NetworkServer:
                     )
             else:
                 self._get_and_send(line)
+            return True
+        return False
 
     def _get_and_send(self, line):
         try:
@@ -189,11 +204,19 @@ class NetworkServer:
             self._channel.send('% command file missing for "{}"'.format(line))
 
     def _handle_command(self, line):
-        self._is_exit(line)
-        self._is_help(line)
-        self._is_history(line)
-        self._is_meta(line)
-        self._is_show(line)
+        if self._is_exit(line):
+            return
+        if self._is_help(line):
+            return
+        if self._is_history(line):
+            return
+        if self._is_conf(line):
+            return
+        if self._is_meta(line):
+            return
+        if self._is_show(line):
+            return
+        return
 
     def _interactive(self):
         fhandle = self._channel.makefile("rU")

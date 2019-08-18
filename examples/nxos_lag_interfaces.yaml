@@ -2,7 +2,7 @@
   gather_facts: False
   tasks:
   - cli_command:
-      command: "meta: hostname={{ inventory_hostname }}"
+      command: "!hostname={{ inventory_hostname }}"
   - nxos_lag_interfaces:
       config:
         - name: port-channel99

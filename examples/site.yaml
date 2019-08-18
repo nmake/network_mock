@@ -6,9 +6,14 @@
       ios: show run
       nxos: show run
       vyos: show config
+    platform_comment:
+      eos: '!'
+      ios: '#'
+      nxos: '#'
+      vyos: '#'
   tasks:
   - cli_command:
-      command: "meta: hostname={{ inventory_hostname }}"
+      command: "{{ platform_comment[ansible_network_os] }}hostname={{ inventory_hostname }}"
   - cli_command:
       command: "{{ platform_show[ansible_network_os] }}"
     register: output

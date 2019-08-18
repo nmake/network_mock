@@ -1,4 +1,4 @@
-[![asciicast](https://asciinema.org/a/9C2rvEFBaqH43EKhTh6vyZd8u.png)](https://asciinema.org/a/9C2rvEFBaqH43EKhTh6vyZd8u?speed=1.5&autoplay=1)
+[![asciicast](https://asciinema.org/a/6qAJ7eDSPknB45uqdfDaFH9x8.png)](https://asciinema.org/a/6qAJ7eDSPknB45uqdfDaFH9x8?speed=1.5&autoplay=1)
 
 # Network Mock
 
@@ -34,12 +34,22 @@ python server.py test_rsa.key
 
 At the beginning of the play, the ssh server needs to be informed of the name of the network device.  This is used as the folder name from which the command output will be retrieved.
 
-Issue the command in the format `meta: hostname=xxxx`, where xxx is the name of the device for which `show` command output will be retrieved.
+Issue the command in the format `#hostname=xxxx` or `!hostname=xxxx`, where xxx is the name of the device for which `show` command output will be retrieved.
+
+By using the comment character specific to the network device os, switching between network_mock and the real devices can be dome with playbook modifications.
+
+```
+platform_comment:
+  eos: '!'
+  ios: '#'
+  nxos: '#'
+  vyos: '#'
+```
 
 ```
 tasks:
 - cli_command:
-    command: "meta: hostname={{ inventory_hostname }}"
+    command: "#hostname={{ inventory_hostname }}"
 ```
 
 The ansible invnetory should be updated such that each host uses a unique port on the SSH mock server and the `ansible_host` set to where the server was started.
