@@ -36,7 +36,7 @@ At the beginning of the play, the ssh server needs to be informed of the name of
 
 Issue the command in the format `#hostname=xxxx` or `!hostname=xxxx`, where xxx is the name of the device for which `show` command output will be retrieved.
 
-By using the comment character specific to the network device os, switching between network_mock and the real devices can be dome with playbook modifications.
+By using the comment character specific to the network device os, switching between network_mock and the real devices can be done without playbook modifications.
 
 ```
 platform_comment:
