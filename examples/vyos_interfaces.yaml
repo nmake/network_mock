@@ -5,11 +5,7 @@
       command: "#hostname={{ inventory_hostname }}"
   - vyos_interfaces:
       state: deleted
-    check_mode: False
+    check_mode: True
     register: output
-
-- hosts: vyos101
-  gather_facts: False
-  tasks:
   - debug:
       var: output
