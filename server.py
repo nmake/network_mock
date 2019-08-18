@@ -102,10 +102,22 @@ class NetworkServer:
     def _is_help(self, line):
         command = re.match(r"(\?|help)", line)
         if command:
-            self._channel.send("\r\nGENERAL COMMANDS")
-            self._channel.send("\r\nexit                  Exit the session")
-            self._channel.send("\r\nhelp                  Get help")
-            self._channel.send("\r\nmeta: hostname=xxx    Set the hostname")
+            self._channel.send("\r\n\r\nGENERAL COMMANDS")
+            self._channel.send(
+                "\r\n{:<20}{:<50}".format("exit", "Exit the session")
+            )
+            self._channel.send("\r\n{:<20}{:<50}".format("help", "Get help"))
+            self._channel.send(
+                "\r\n{:<20}{:<50}".format("history", "Show history")
+            )
+            self._channel.send(
+                "\r\n{:<20}{:<50}".format("!x", "Run cmd from history")
+            )
+            self._channel.send(
+                "\r\n{:<20}{:<50}".format(
+                    "meta: hostname=xxx", "Set the hostname"
+                )
+            )
             if "hostname" in self._session_meta:
                 hostdir = "{}/{}".format(
                     CONFIG_DIR, self._session_meta["hostname"]
@@ -115,8 +127,8 @@ class NetworkServer:
                     for f in listdir(hostdir)
                     if isfile(join(hostdir, f))
                 ]
-                self._channel.send("\r\nAVAILABLE NETWORK COMMANDS")
-                self._channel.send("\r\n" + "\r\n".join(files))
+                self._channel.send("\r\n\r\nAVAILABLE NETWORK COMMANDS")
+                self._channel.send("\r\n" + "\r\n".join(files) + "\r\n")
 
     def _is_history(self, line):
         command = re.match(r"history", line)
