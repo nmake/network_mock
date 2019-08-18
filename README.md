@@ -46,7 +46,7 @@ The ansible invnetory should be updated such that each host uses a unique port o
 
 ```
 vars:
-  ansible_port: "{{ 3000 + play_hosts.index(inventory_hostname) }}"
+  ansible_port: "{{ 2200 + play_hosts.index(inventory_hostname) }}"
   ansible_host: localhost
 ```
 ## Examples
