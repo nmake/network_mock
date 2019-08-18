@@ -155,6 +155,7 @@ class NetworkServer:
                 history_command = self._history[int(cap["hnum"])]
                 if not re.match(r"!(?P<hnum>\d+)", history_command):
                     self._channel.send("\r\n{}".format(history_command))
+                    self._history.append(history_command)
                     self._handle_command(history_command)
             except IndexError:
                 pass
