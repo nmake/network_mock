@@ -9,6 +9,7 @@ import logging
 from os import listdir
 from os.path import isfile, join, splitext
 import argparse
+import json
 
 
 class Server(paramiko.ServerInterface):
@@ -182,6 +183,12 @@ class NetworkServer:
                     self._channel.send("\n15")
                 elif cap["value"] in ["version", "inventory"]:
                     pass
+                elif cap["value"] == "version | json":
+                    eos_version = {"modelName": "", "version": ""}
+                    self._channel.send(json.dumps(eos_version))
+                elif cap["value"] == "hostname | json":
+                    eos_hostname = {"fqdn": "router", "hostname": "router"}
+                    self._channel.send(json.dumps(eos_hostname))
                 else:
                     self._channel.send(
                         "\r\n% hostname must be set with a "

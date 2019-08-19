@@ -1,0 +1,43 @@
+- hosts: eos101
+  gather_facts: False
+  tasks:
+  - eos_command:
+      commands:
+      - "!hostname={{ inventory_hostname }}"
+      - show run
+    register: output
+  - debug:
+      var: output
+
+- hosts: ios101
+  gather_facts: False
+  tasks:
+  - ios_command:
+      commands:
+      - "!hostname={{ inventory_hostname }}"
+      - show run
+    register: output
+  - debug:
+      var: output
+
+- hosts: nxos101
+  gather_facts: False
+  tasks:
+  - nxos_command:
+      commands:
+      - "!hostname={{ inventory_hostname }}"
+      - show run
+    register: output
+  - debug:
+      var: output
+
+- hosts: vyos101
+  gather_facts: False
+  tasks:
+  - vyos_command:
+      commands:
+      - "!hostname={{ inventory_hostname }}"
+      - show config
+    register: output
+  - debug:
+      var: output
