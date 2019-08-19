@@ -1,5 +1,3 @@
-[![asciicast](https://asciinema.org/a/6qAJ7eDSPknB45uqdfDaFH9x8.png)](https://asciinema.org/a/6qAJ7eDSPknB45uqdfDaFH9x8?speed=1.5&autoplay=1)
-
 # Network Mock
 
 `network_mock` is a simple ssh server that can respond to network device `show` commands. It was authored as a debugging tool used during local development.
@@ -7,19 +5,24 @@
 ## Usage
 
 ```
-(venv) ➜  network_mock git:(master) python server.py --help
-usage: server.py [-h] [-p BASE_PORT] [-d DIRECTORY] [-c SERVER_COUNT] -k
-                 SSH_KEY
+usage: server.py [-h] [-b BASE_PORT] [-d DIRECTORY] [-p PASSWORD]
+                 [-u USERNAME] [-c SERVER_COUNT] -k SSH_KEY
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p BASE_PORT,       --base-port BASE_PORT
-                        Base port for the SSH server (default: 2200)
+  -b BASE_PORT,       --base-port BASE_PORT
+                        Base port for the SSH server. (default: 2200)
   -d DIRECTORY,       --directory DIRECTORY
                         The path to the device/commands directories. (default:
                         ./examples/configs)
+  -p PASSWORD,        --password PASSWORD
+                        The SSH server authentication password. (default:
+                        None)
+  -u USERNAME,        --username USERNAME
+                        The SSH server authentication username. (default:
+                        None)
   -c SERVER_COUNT,    --server-count SERVER_COUNT
-                        The number of SSH servers to start (default: 10)
+                        The number of SSH servers to start. (default: 10)
   -k SSH_KEY,         --ssh_key SSH_KEY
                         Server side SSH key file path (default: None)
 
@@ -48,30 +51,34 @@ The base port is by default 2200.
 A key needs to be provided:
 
 ```
-python server.py test_rsa.key
+python server.py -k=test_rsa.key
 ```
+
+## Connecting to the server
+
+The SSH client username needs to be in the format `username::hostname`.
+
+For example, to connect as operator, and set the connection context to a device named "router5":
+
+`ssh operator::router5@localhost -p 2200`
+
+(The hostname portion informs the SSH server which directory to use for the `show` command files.)
 
 ## Using with ansible
 
-At the beginning of the play, the ssh server needs to be informed of the name of the network device.  This is used as the folder name from which the command output will be retrieved.
+### Set up the username for the connection
 
-Issue the command in the format `#hostname=xxxx` or `!hostname=xxxx`, where xxx is the name of the device for which `show` command output will be retrieved.
+The network_mock server requires the username be in a particular format (see above).
 
-By using the comment character specific to the network device os, switching between network_mock and the real devices can be done without playbook modifications.
+This is used as the folder name from which the command output will be retrieved.
 
-```
-platform_comment:
-  eos: '!'
-  ios: '#'
-  nxos: '#'
-  vyos: '#'
-```
+Example:
 
 ```
-tasks:
-- cli_command:
-    command: "#hostname={{ inventory_hostname }}"
+ansible_user: "{{ lookup('env', 'ansible_ssh_user') }}::{{ inventory_hostname }}"
 ```
+
+### Set up the IP and port for the connection
 
 The ansible invnetory should be updated such that each host uses a unique port on the SSH mock server and the `ansible_host` set to where the server was started.
 
@@ -80,6 +87,23 @@ vars:
   ansible_port: "{{ 2200 + play_hosts.index(inventory_hostname) }}"
   ansible_host: localhost
 ```
+
+### Required files for ansible
+
+Each platform requires certain `show` command output be available for Ansible modules to work.  Review the server output to see which `show` files commands are required.
+
+Example:
+
+```
+INFO:NetworkServer:eos101: terminal length 0
+INFO:NetworkServer:eos101: terminal width 512
+INFO:NetworkServer:eos101: show version | json
+INFO:NetworkServer:eos101: show hostname | json
+```
+
+Indicates that both `show version | json` and `show hostname | json` are required for the `eos_command` module.
+
+
 ## Examples
 
 See the examples directory for a few examples

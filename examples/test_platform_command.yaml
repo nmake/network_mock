@@ -3,7 +3,6 @@
   tasks:
   - eos_command:
       commands:
-      - "!hostname={{ inventory_hostname }}"
       - show run
     register: output
   - debug:
@@ -14,7 +13,6 @@
   tasks:
   - ios_command:
       commands:
-      - "!hostname={{ inventory_hostname }}"
       - show run
     register: output
   - debug:
@@ -25,7 +23,6 @@
   tasks:
   - nxos_command:
       commands:
-      - "!hostname={{ inventory_hostname }}"
       - show run
     register: output
   - debug:
@@ -36,7 +33,6 @@
   tasks:
   - vyos_command:
       commands:
-      - "!hostname={{ inventory_hostname }}"
       - show config
     register: output
   - debug:
