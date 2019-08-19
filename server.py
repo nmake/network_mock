@@ -272,7 +272,7 @@ def _parse_args():
     parser.add_argument(
         "-d",
         "--directory",
-        default="./configs",
+        default="./examples/configs",
         help="The path to the device/commands directories.",
     )
 

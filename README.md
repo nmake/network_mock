@@ -7,21 +7,22 @@
 ## Usage
 
 ```
-(venv) ➜  network_mock git:(master) ✗ python server.py --help
+(venv) ➜  network_mock git:(master) python server.py --help
 usage: server.py [-h] [-p BASE_PORT] [-d DIRECTORY] [-c SERVER_COUNT] -k
                  SSH_KEY
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p BASE_PORT,    --base-port BASE_PORT
+  -p BASE_PORT,       --base-port BASE_PORT
                         Base port for the SSH server (default: 2200)
-  -d DIRECTORY,    --directory DIRECTORY
+  -d DIRECTORY,       --directory DIRECTORY
                         The path to the device/commands directories. (default:
-                        ./configs)
-  -c SERVER_COUNT, --server-count SERVER_COUNT
+                        ./examples/configs)
+  -c SERVER_COUNT,    --server-count SERVER_COUNT
                         The number of SSH servers to start (default: 10)
-  -k SSH_KEY,      --ssh_key SSH_KEY
+  -k SSH_KEY,         --ssh_key SSH_KEY
                         Server side SSH key file path (default: None)
+
 ```
 
 ## Getting started
