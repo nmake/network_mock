@@ -183,7 +183,7 @@ class NetworkServer:
                 else:
                     self._channel.send(
                         "\r\n% hostname must be set with a "
-                        ' "meta: hostname=xxxx" command'
+                        ' "#hostname=xxxx" or "!hostname=xxxx" command'
                     )
             else:
                 self._get_and_send(line)

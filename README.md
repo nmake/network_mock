@@ -22,7 +22,7 @@ The previously retrieved command output needs to be stored in a directory, one p
 ## Starting the server
 
 Update the server.py to reflect the base port and number of servers.
-The base port is by default 3000.
+The base port is by default 2200.
 
 A key needs to be provided:
 
