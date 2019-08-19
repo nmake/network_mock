@@ -8,10 +8,7 @@ import paramiko
 import logging
 from os import listdir
 from os.path import isfile, join, splitext
-
-BASE_PORT = 2200
-SERVER_COUNT = 10
-CONFIG_DIR = "./configs"
+import argparse
 
 
 class Server(paramiko.ServerInterface):
@@ -50,11 +47,14 @@ class Server(paramiko.ServerInterface):
 
 
 class NetworkServer:
-    def __init__(self, host_key_path, port):
+    def __init__(self, host_key_path, port, directory):
         self._history = []
         self._host_key_path = host_key_path
         self._channel = None
         self._conf_mode = False
+        self._directory = directory
+        self._logger = logging.getLogger(self.__class__.__name__)
+        logging.basicConfig(level=logging.INFO)
         self._port = port
         self._session_meta = {}
         self._transport = None
@@ -65,10 +65,10 @@ class NetworkServer:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(("", self._port))
-        logging.info("SSH server bound to port %s", self._port)
+        self._logger.info("SSH server bound to port %s", self._port)
         sock.listen(100)
         client, addr = sock.accept()
-        logging.info("Connection from %s on port %s", addr, self._port)
+        self._logger.info("Connection from %s on port %s", addr, self._port)
         self._transport = paramiko.Transport(client)
         self._transport.load_server_moduli()
         self._transport.add_server_key(host_key)
@@ -84,10 +84,9 @@ class NetworkServer:
             r"(?P<conf>conf)(igure)?( (?P<conf_mode>.*))?", line
         )
         if confcmd:
-            cap = confcmd.groupdict()
-            logger.info(
-                "user entered configure mode with %s",
-                cap.get("conf_mode", "none"),
+            self._logger.info(
+                "%s: (user entered configure mode)",
+                self._session_meta.get("hostname", "unknown"),
             )
             self._conf_mode = True
             return True
@@ -96,7 +95,10 @@ class NetworkServer:
     def _is_exit(self, line):
         if line == "exit":
             if self._conf_mode:
-                logger.info("user exited configure mode")
+                self._logger.info(
+                    "%s: (user exited configure mode)",
+                    self._session_meta.get("hostname", "unknown"),
+                )
                 self._conf_mode = False
             else:
                 self._transport.close()
@@ -125,7 +127,7 @@ class NetworkServer:
             )
             if "hostname" in self._session_meta:
                 hostdir = "{}/{}".format(
-                    CONFIG_DIR, self._session_meta["hostname"]
+                    self._directory, self._session_meta["hostname"]
                 )
                 files = [
                     splitext(f)[0]
@@ -194,7 +196,7 @@ class NetworkServer:
         try:
             with open(
                 "{}/{}/{}.txt".format(
-                    CONFIG_DIR, self._session_meta["hostname"], line
+                    self._directory, self._session_meta["hostname"], line
                 ),
                 "r",
             ) as fhand:
@@ -204,7 +206,7 @@ class NetworkServer:
         except FileNotFoundError:
             self._channel.send('% command file missing for "{}"'.format(line))
 
-    def _handle_command(self, line):
+    def _handle_command(self, line):  # pylint: disable=R0911
         if self._is_exit(line):
             return
         if self._is_help(line):
@@ -235,7 +237,7 @@ class NetworkServer:
                 line = "".join(line_buffer)
                 self._history.append(line)
                 line_buffer = []
-                logger.info(
+                self._logger.info(
                     "%s: %s",
                     self._session_meta.get("hostname", "unknown"),
                     line,
@@ -244,32 +246,68 @@ class NetworkServer:
                 self._channel.send("\r\n{}".format(self._prompt))
 
 
-def _spawn(host_key_path, port):
+def _spawn(host_key_path, port, directory):
     while True:
         try:
-            NetworkServer(host_key_path, port).run()
+            NetworkServer(host_key_path, port, directory).run()
         except Exception as exc:  # pylint: disable=W0703
-            logger.warning(exc)
+            LOGGER.warning(exc)
+
+
+def _parse_args():
+    """ Entrypoint
+    """
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument(
+        "-p",
+        "--base-port",
+        default=2200,
+        type=int,
+        help="Base port for the SSH server",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--directory",
+        default="./configs",
+        help="The path to the device/commands directories.",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--server-count",
+        default=10,
+        type=int,
+        help="The number of SSH servers to start",
+    )
+
+    parser.add_argument(
+        "-k", "--ssh_key", help="Server side SSH key file path", required=True
+    )
+
+    args = parser.parse_args()
+    return args
 
 
 def main():
     """ main
     """
-    if len(sys.argv) != 2:
-        print("Need private host RSA key as argument.")
-        sys.exit(1)
-
-    host_key_path = sys.argv[1]
-    executor = concurrent.futures.ProcessPoolExecutor(SERVER_COUNT)
+    args = _parse_args()
+    executor = concurrent.futures.ProcessPoolExecutor(args.server_count)
     futures = [
-        executor.submit(_spawn, host_key_path, BASE_PORT + item)
-        for item in range(0, SERVER_COUNT)
+        executor.submit(
+            _spawn, args.ssh_key, args.base_port + item, args.directory
+        )
+        for item in range(0, args.server_count)
     ]
     for future in concurrent.futures.as_completed(futures):
         future.result()
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger()
+    LOGGER = logging.getLogger()
     logging.basicConfig(level=logging.INFO)
     main()
