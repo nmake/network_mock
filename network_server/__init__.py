@@ -123,6 +123,7 @@ class NetworkServer:
                 response = self._keystrokes[char]["plugin"].execute_keystroke(
                     char, line_buffer
                 )
+                print(response)
                 self._channel.send(response["output"] or "")
                 if response["prompt"]:
                     self._send_prompt()

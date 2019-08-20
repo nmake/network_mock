@@ -13,5 +13,5 @@ class Navigation(PluginBase):
     def execute_keystroke(self, char, line_buffer):
         if char == b"\x7f":
             if line_buffer:
-                return "\b \b", False
+                return self.respond(output="\b \b", prompt=False)
         return self.respond(output=None, prompt=False)
