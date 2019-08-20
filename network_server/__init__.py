@@ -4,11 +4,13 @@ import logging
 import re
 import socket
 import sys
+from typing import Pattern
 import paramiko
 from network_server.paramiko_server import ParamikoServer
 from network_server.plugins.navigation import Navigation
 from network_server.plugins.show_file_server import ShowFileServer
 from network_server.plugins.help import Help
+from network_server.plugins.history import History
 
 
 class NetworkServer:
@@ -84,64 +86,45 @@ class NetworkServer:
             return True
         return False
 
-    def _is_history(self, line):
-        matched = False
-        command = re.match(r"history", line)
-        if command:
-            matched = True
-            formatted_history = [
-                "{}  {}".format(str(idx).rjust(3), cmd)
-                for idx, cmd in enumerate(self._history)
-            ]
-            self._channel.send("\r\n" + "\r\n".join(formatted_history))
-        command = re.match(r"!(?P<hnum>\d+)", line)
-        if command:
-            matched = True
-            cap = command.groupdict()
-            try:
-                history_command = self._history[int(cap["hnum"])]
-                if not re.match(r"!(?P<hnum>\d+)", history_command):
-                    self._channel.send("\r\n{}".format(history_command))
-                    self._history.append(history_command)
-                    self._handle_command(history_command)
-            except IndexError:
-                pass
-        return matched
-
     def _handle_command(self, line):  # pylint: disable=R0911
+        self._history.append(line)
+        self._logger.info("%s: %s", self._hostname, line)
         if line in self._commands:
-            output, prompt = self._commands[line]["plugin"].execute_command(
-                line
-            )
-            self._channel.send(output)
-            if prompt:
-                self._channel.send("\r\n{}".format(self._prompt))
+            response = self._commands[line]["plugin"].execute_command(line)
+            self._respond(response)
             return
+        # check the regexs
+        matches = [
+            val
+            for k, val in self._commands.items()
+            if isinstance(k, Pattern) and re.match(k, line)
+        ]
+        if matches:
+            response = matches[0]["plugin"].execute_command(line)
+            self._respond(response)
+            return
+
         if self._is_exit(line):
             return
-        if self._is_history(line):
-            self._channel.send("\r\n{}".format(self._prompt))
-            return
         if self._is_conf(line):
-            self._channel.send("\r\n{}".format(self._prompt))
-            return
-        self._channel.send("\r\n{}".format(self._prompt))
+            pass
+        self._send_prompt()
         return
 
     def _interactive(self):
         fhandle = self._channel.makefile("rU")
         line_buffer = []
-        self._channel.send("\r\n{}".format(self._prompt))
+        self._send_prompt()
         while not self._channel.closed:
             char = fhandle.read(1)
             self._channel.send(char)
             if char in self._keystrokes:
-                output, prompt = self._keystrokes[char][
-                    "plugin"
-                ].execute_keystroke(char, line_buffer)
-                self._channel.send(output or "")
-                if prompt:
-                    self._channel.send("\r\n{}".format(self._prompt))
+                response = self._keystrokes[char]["plugin"].execute_keystroke(
+                    char, line_buffer
+                )
+                self._channel.send(response["output"] or "")
+                if response["prompt"]:
+                    self._send_prompt()
                 if line_buffer:
                     line_buffer = line_buffer[0:-1]
 
@@ -149,18 +132,17 @@ class NetworkServer:
                 line_buffer.append(char.decode("utf-8"))
             else:
                 line = "".join(line_buffer)
-                self._history.append(line)
                 line_buffer = []
-                self._logger.info("%s: %s", self._hostname, line)
                 self._handle_command(line)
 
     def _load_plugins(self):
-        plugins = [ShowFileServer, Help, Navigation]
+        plugins = [ShowFileServer, Help, History, Navigation]
         for plugin in plugins:
             plugin_initd = plugin(
                 commands=self._commands,
-                hostname=self._hostname,
                 directory=self._directory,
+                history=self._history,
+                hostname=self._hostname,
             )
             commands = plugin_initd.commands()
             for command in commands:
@@ -168,3 +150,13 @@ class NetworkServer:
             keystrokes = plugin_initd.keystrokes()
             for keystroke in keystrokes:
                 self._keystrokes[keystroke] = {"plugin": plugin_initd}
+
+    def _respond(self, response):
+        self._channel.send(response["output"])
+        if response["issue_command"]:
+            self._handle_command(response["issue_command"])
+        if response["prompt"]:
+            self._send_prompt()
+
+    def _send_prompt(self):
+        self._channel.send("\r\n{}".format(self._prompt))

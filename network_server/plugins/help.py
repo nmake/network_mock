@@ -1,6 +1,7 @@
 """ A plugin for handling help and ?
 """
 from network_server.plugins import PluginBase
+from typing import Pattern
 
 
 class Help(PluginBase):
@@ -19,8 +20,20 @@ class Help(PluginBase):
         output += "\r\n{:<20}{:<50}".format("help", "Get help")
         output += "\r\n{:<20}{:<50}".format("!x", "Run cmd from history")
         output += "\r\n\r\nOTHER AVAILABLE COMMANDS"
-        output += "\r\n" + "\r\n".join(self._commands.keys()) + "\r\n"
-        return output, True
+        output += (
+            "\r\n"
+            + "\r\n".join(
+                sorted(
+                    [
+                        key
+                        for key in self._commands.keys()
+                        if not isinstance(key, Pattern)
+                    ]
+                )
+            )
+            + "\r\n"
+        )
+        return self.respond(output=output)
 
     def execute_keystroke(self, *args, **kwargs):
         return self.execute_command("")

@@ -24,4 +24,4 @@ class ShowFileServer(PluginBase):
         ) as fhand:
             content = fhand.read()
         content = "\r\n" + "\r\n".join(content.splitlines()) + "\r\n"
-        return content, True
+        return self.respond(output=content)

@@ -3,10 +3,13 @@
 
 
 class PluginBase:
+    """ pluginbase
+    """
+
     def __init__(self, *args, **kwargs):
-        print(args, kwargs)
         self._commands = kwargs["commands"]
         self._directory = kwargs["directory"]
+        self._history = kwargs["history"]
         self._hostname = kwargs["hostname"]
 
     def commands(self):
@@ -20,3 +23,10 @@ class PluginBase:
 
     def execute_keystroke(self, *args, **kwargs):
         return "", False
+
+    def respond(self, output="", issue_command="", prompt=True):
+        return {
+            "output": output,
+            "issue_command": issue_command,
+            "prompt": prompt,
+        }
