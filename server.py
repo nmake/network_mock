@@ -4,8 +4,8 @@
 import concurrent.futures
 import logging
 import argparse
-from network_server import NetworkServer
 import traceback
+from network_server import NetworkServer
 
 
 def _spawn(host_key_path, port, directory, password, username):
