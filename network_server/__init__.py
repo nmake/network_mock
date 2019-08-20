@@ -89,6 +89,7 @@ class NetworkServer:
     def _handle_command(self, line):  # pylint: disable=R0911
         self._history.append(line)
         self._logger.info("%s: %s", self._hostname, line)
+        # check for exact match
         if line in self._commands:
             response = self._commands[line]["plugin"].execute_command(line)
             self._respond(response)

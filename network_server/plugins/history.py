@@ -20,7 +20,7 @@ class History(PluginBase):
             ]
             output = "\r\n" + "\r\n".join(formatted_history)
             return self.respond(output=output)
-        elif re.match(r"!(?P<hnum>\d+)", line):
+        if re.match(r"!(?P<hnum>\d+)", line):
             command = re.match(r"!(?P<hnum>\d+)", line)
             cap = command.groupdict()
             try:
