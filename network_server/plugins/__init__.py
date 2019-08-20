@@ -18,15 +18,24 @@ class PluginBase:
     def keystrokes(self):
         return []
 
-    def execute_command(self, *args, **kwargs):
+    def execute_command(self, line):
         return "\r\n", True
 
     def execute_keystroke(self, *args, **kwargs):
         return "", False
 
-    def respond(self, output="", issue_command="", prompt=True):
+    def respond(
+        self,
+        output="",
+        issue_command="",
+        prompt=True,
+        context=False,
+        new_prompt=False,
+    ):
         return {
             "output": output,
             "issue_command": issue_command,
             "prompt": prompt,
+            "context": context,
+            "new_prompt": new_prompt,
         }

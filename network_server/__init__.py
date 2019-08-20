@@ -9,6 +9,7 @@ import paramiko
 from network_server.paramiko_server import ParamikoServer
 from network_server.plugins.navigation import Navigation
 from network_server.plugins.show_file_server import ShowFileServer
+from network_server.plugins.configure import Configure
 from network_server.plugins.help import Help
 from network_server.plugins.history import History
 
@@ -21,7 +22,7 @@ class NetworkServer:
         self._history = []
         self._host_key_path = host_key_path
         self._channel = None
-        self._conf_mode = False
+        self._context = False
         self._directory = directory
         self._hostname = None
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -62,33 +63,13 @@ class NetworkServer:
         self._load_plugins()
         self._interactive()
 
-    def _is_conf(self, line):
-        confcmd = re.match(
-            r"(?P<conf>conf)(igure)?( (?P<conf_mode>.*))?", line
-        )
-        if confcmd:
-            self._logger.info(
-                "%s: (user entered configure mode)", self._hostname
-            )
-            self._conf_mode = True
-            return True
-        return False
-
-    def _is_exit(self, line):
-        if line == "exit":
-            if self._conf_mode:
-                self._logger.info(
-                    "%s: (user exited configure mode)", self._hostname
-                )
-                self._conf_mode = False
-            else:
-                self._transport.close()
-            return True
-        return False
-
     def _handle_command(self, line):  # pylint: disable=R0911
         self._history.append(line)
-        self._logger.info("%s: %s", self._hostname, line)
+        # if in a context send all commands that way
+        if self._context:
+            response = self._context.execute_command(line)
+            self._respond(response)
+            return
         # check for exact match
         if line in self._commands:
             response = self._commands[line]["plugin"].execute_command(line)
@@ -105,10 +86,11 @@ class NetworkServer:
             self._respond(response)
             return
 
-        if self._is_exit(line):
+        if line == "exit":
+            self._transport.close()
             return
-        if self._is_conf(line):
-            pass
+
+        self._logger.info("%s: No match for '%s'", self._hostname, line)
         self._send_prompt()
         return
 
@@ -137,7 +119,7 @@ class NetworkServer:
                 self._handle_command(line)
 
     def _load_plugins(self):
-        plugins = [ShowFileServer, Help, History, Navigation]
+        plugins = [Configure, ShowFileServer, Help, History, Navigation]
         for plugin in plugins:
             plugin_initd = plugin(
                 commands=self._commands,
@@ -154,6 +136,9 @@ class NetworkServer:
 
     def _respond(self, response):
         self._channel.send(response["output"])
+        self._context = response["context"]
+        if response["new_prompt"]:
+            self._prompt = response["new_prompt"]
         if response["issue_command"]:
             self._handle_command(response["issue_command"])
         if response["prompt"]:

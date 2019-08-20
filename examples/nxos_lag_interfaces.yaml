@@ -7,7 +7,7 @@
           members:
             - member: Ethernet1/2
       state: merged
-    check_mode: True
+    check_mode: False
     register: output
   - debug:
       var: output
