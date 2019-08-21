@@ -13,12 +13,22 @@ from network_server.plugins.configure import Configure
 from network_server.plugins.help import Help
 from network_server.plugins.history import History
 
+PLUGIN_REF = {
+    "confmode": Configure,
+    "showfs": ShowFileServer,
+    "help": Help,
+    "history": History,
+    "navigation": Navigation,
+}
+
 
 class NetworkServer:
     """ network_server
     """
 
-    def __init__(self, host_key_path, port, directory, password, username):
+    def __init__(
+        self, host_key_path, port, directory, password, username, plugins
+    ):
         self._history = []
         self._host_key_path = host_key_path
         self._channel = None
@@ -29,6 +39,7 @@ class NetworkServer:
         logging.basicConfig(level=logging.INFO)
         self._password = password
         self._port = port
+        self._plugins = plugins
         self._username = username
         self._transport = None
         self._prompt = "router#"
@@ -119,7 +130,7 @@ class NetworkServer:
                 self._handle_command(line)
 
     def _load_plugins(self):
-        plugins = [Configure, ShowFileServer, Help, History, Navigation]
+        plugins = [val for k, val in PLUGIN_REF.items() if k in self._plugins]
         for plugin in plugins:
             plugin_initd = plugin(
                 commands=self._commands,
@@ -133,6 +144,7 @@ class NetworkServer:
             keystrokes = plugin_initd.keystrokes()
             for keystroke in keystrokes:
                 self._keystrokes[keystroke] = {"plugin": plugin_initd}
+            self._logger.info("Enabled plugin: %s", plugin.__name__)
 
     def _respond(self, response):
         self._channel.send(response["output"])

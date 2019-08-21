@@ -8,12 +8,10 @@ import traceback
 from network_server import NetworkServer
 
 
-def _spawn(host_key_path, port, directory, password, username):
+def _spawn(*args, **kwargs):
     while True:
         try:
-            NetworkServer(
-                host_key_path, port, directory, password, username
-            ).run()
+            NetworkServer(*args, **kwargs).run()
         except Exception as exc:  # pylint: disable=W0703
             if str(exc) in ["Socket is closed"]:
                 LOGGER.warning(exc)
@@ -51,6 +49,14 @@ def _parse_args():
     )
 
     parser.add_argument(
+        "-e",
+        "--enable-plugins",
+        type=lambda s: [item for item in s.split(",")],
+        help="The plugins that should be enabled",
+        default="confmode,showfs,help,history,navigation,showfs",
+    )
+
+    parser.add_argument(
         "-u", "--username", help="The SSH server authentication username."
     )
 
@@ -78,11 +84,12 @@ def main():
     futures = [
         executor.submit(
             _spawn,
-            args.ssh_key,
-            args.base_port + item,
-            args.directory,
-            args.password,
-            args.username,
+            host_key_path=args.ssh_key,
+            port=args.base_port + item,
+            directory=args.directory,
+            password=args.password,
+            username=args.username,
+            plugins=args.enable_plugins,
         )
         for item in range(0, args.server_count)
     ]
