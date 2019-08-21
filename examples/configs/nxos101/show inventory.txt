@@ -1,14 +1,14 @@
-NAME: "Chassis",  DESCR: "Nexus9000 9000v Chassis"
-PID: N9K-9000v           ,  VID: V02 ,  SN: 9XGWGSIM487
+NAME: "Chassis",  DESCR: "Nexus9000 9000v Chassis"               
+PID: N9K-9000v           ,  VID: V02 ,  SN: 9X7XF2UK3Q1          
 
-NAME: "Slot 1",  DESCR: "Nexus 9000v Ethernet Module"
-PID: N9K-9000v           ,  VID: V02 ,  SN: 9XGWGSIM487
+NAME: "Slot 1",  DESCR: "Nexus 9000v Ethernet Module"           
+PID: N9K-9000v           ,  VID: V02 ,  SN: 9X7XF2UK3Q1          
 
-NAME: "Fan 1",  DESCR: "Nexus9000 9000v Chassis Fan Module"
-PID: N9K-9000v-FAN       ,  VID: V01 ,  SN: N/A
+NAME: "Fan 1",  DESCR: "Nexus9000 9000v Chassis Fan Module"    
+PID: N9K-9000v-FAN       ,  VID: V01 ,  SN: N/A                  
 
-NAME: "Fan 2",  DESCR: "Nexus9000 9000v Chassis Fan Module"
-PID: N9K-9000v-FAN       ,  VID: V01 ,  SN: N/A
+NAME: "Fan 2",  DESCR: "Nexus9000 9000v Chassis Fan Module"    
+PID: N9K-9000v-FAN       ,  VID: V01 ,  SN: N/A                  
 
-NAME: "Fan 3",  DESCR: "Nexus9000 9000v Chassis Fan Module"
+NAME: "Fan 3",  DESCR: "Nexus9000 9000v Chassis Fan Module"    
 PID: N9K-9000v-FAN       ,  VID: V01 ,  SN: N/A

@@ -1,1 +1,4 @@
-{"fqdn": "router", "hostname": "router"}
+{
+    "fqdn": "eos101",
+    "hostname": "eos101"
+}

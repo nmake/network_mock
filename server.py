@@ -4,6 +4,7 @@
 import concurrent.futures
 import logging
 import argparse
+import sys
 import traceback
 from network_server import NetworkServer
 
@@ -12,6 +13,13 @@ def _spawn(*args, **kwargs):
     while True:
         try:
             NetworkServer(*args, **kwargs).run()
+        except ModuleNotFoundError as exc:
+            LOGGER.error(
+                "Requirements not satisfied for enabled plugins. Please see docuemention."
+            )
+
+            LOGGER.error(exc)
+            sys.exit(1)
         except Exception as exc:  # pylint: disable=W0703
             if str(exc) in ["Socket is closed"]:
                 LOGGER.warning(exc)

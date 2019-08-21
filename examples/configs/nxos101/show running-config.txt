@@ -1,9 +1,8 @@
-
 !Command: show running-config
-!Running configuration last done at: Sat Aug 17 15:51:25 2019
-!Time: Sat Aug 17 16:37:24 2019
+!Running configuration last done at: Tue Aug 20 20:11:14 2019
+!Time: Wed Aug 21 22:52:27 2019
 
-version 9.2(2) Bios:version
+version 9.2(2) Bios:version  
 hostname nxos101
 vdc nxos101 id 1
   limit-resource vlan minimum 16 maximum 4094
@@ -18,12 +17,12 @@ feature privilege
 feature lldp
 
 no password strength-check
-username admin password 5 $5$MZe1qKNj$8I7F.lHrbonQ4gwUhMwe2L8fblAtUQD5Xse7tJRHeZ4  role network-admin
-username bthornto password 5 $5$FneQiGQF$zvOlQRkRKG6Olo5ys35IqO2fP520mEz7kBwu3geSOOA  role network-admin
+username admin password 5 $5$J3AWkd8D$9MrDye8MWVG8lwUxE/BJRd9tlPKcdNZu/42TyShA/k3  role network-admin
+username bthornto password 5 $5$J/uy8x.3$5OuvrROlDToAYZaCSJUeICxDPd.afmeJ6vvNDkoXQw2  role network-admin
 ip domain-lookup
 copp profile strict
-snmp-server user admin network-admin auth md5 0x055c9afceaab7272e5b7ef4b668a3169 priv 0x055c9afceaab7272e5b7ef4b668a3169 localizedkey
-snmp-server user bthornto network-admin auth md5 0x055c9afceaab7272e5b7ef4b668a3169 priv 0x055c9afceaab7272e5b7ef4b668a3169 localizedkey
+snmp-server user admin network-admin auth md5 0xa7219442595dc426ea10853c120db73d priv 0xa7219442595dc426ea10853c120db73d localizedkey
+snmp-server user bthornto network-admin auth md5 0xa7219442595dc426ea10853c120db73d priv 0xa7219442595dc426ea10853c120db73d localizedkey
 rmon event 1 description FATAL(1) owner PMON@FATAL
 rmon event 2 description CRITICAL(2) owner PMON@CRITICAL
 rmon event 3 description ERROR(3) owner PMON@ERROR
@@ -36,6 +35,7 @@ vrf context management
   ip route 0.0.0.0/0 192.168.101.1
 
 interface Ethernet1/1
+  description foo
 
 interface Ethernet1/2
 
@@ -296,5 +296,5 @@ interface mgmt0
   ip address 192.168.101.14/24
 line console
 line vty
-boot nxos bootflash:/nxos.9.2.2.bin
+boot nxos bootflash:/nxos.9.2.2.bin 
 no feature signature-verification

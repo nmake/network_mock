@@ -11,8 +11,6 @@ class Configure(PluginBase):
 
     def __init__(self, *args, **kwargs):
         super(Configure, self).__init__(*args, **kwargs)
-        self._logger = logging.getLogger(self.__class__.__name__)
-        logging.basicConfig(level=logging.INFO)
         self._in_context = False
 
     def commands(self):

@@ -13,8 +13,8 @@ spanning-tree mode mstp
 !
 no aaa root
 !
-username admin role network-admin secret sha512 $6$loVHtL/JqiTdVOys$Fu2J24FGCxBdJKWcy.P0MR94dqkPOXZlc7NZ4qQzTq09l5CKlPcXgu9tukTpHLS8AFs2xCyHDT/bDIqr06R0w/
-username bthornto secret sha512 $6$aZyullX8RcjfPNc6$w8RZH8UjgAe60GUD6uxzHtf6RPgqJveY0l1unb3NyuWJHWzq.MzdTeYzlDmbtmOOnQMp3a7Z39q6A7C/anR1h.
+username admin role network-admin secret sha512 $6$r5egV.O6P8e15FuP$2ir1jWfTI9FSNmOWX039ONuhAYr8zx/YVWP967Pd23Pom4AM.RygR0jp6pwP8FrJQNBjUC.JB8ozr7DDjfLnv/
+username bthornto secret sha512 $6$9TAtYr9JC9.N0jGe$FvKqMxu3eFektu.wUa7LKWtpUNfp67JtXn7EbjfER38mLEO.2SFBfnWD5GX85P6bomjJznnKrbo86sS5U6d5f0
 !
 interface Ethernet1
 !

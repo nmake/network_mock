@@ -45,6 +45,10 @@ class NetworkServer:
         self._prompt = "router#"
         self._commands = {}
         self._keystrokes = {}
+        if "cmdrunner" in self._plugins:
+            from network_server.plugins.command_runner import CommandRunner
+
+            PLUGIN_REF["cmdrunner"] = CommandRunner
 
     def run(self):
         host_key = paramiko.RSAKey(filename=self._host_key_path)
@@ -137,6 +141,8 @@ class NetworkServer:
                 directory=self._directory,
                 history=self._history,
                 hostname=self._hostname,
+                channel=self._channel,
+                username=self._username,
             )
             commands = plugin_initd.commands()
             for command in commands:

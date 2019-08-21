@@ -1,5 +1,6 @@
 """ the plugin base class
 """
+import logging
 
 
 class PluginBase:
@@ -7,10 +8,14 @@ class PluginBase:
     """
 
     def __init__(self, *args, **kwargs):
+        self._channel = kwargs["channel"]
         self._commands = kwargs["commands"]
         self._directory = kwargs["directory"]
         self._history = kwargs["history"]
         self._hostname = kwargs["hostname"]
+        self.username = kwargs["username"]
+        self._logger = logging.getLogger(self.__class__.__name__)
+        logging.basicConfig(level=logging.INFO)
 
     def commands(self):
         return []
@@ -21,8 +26,11 @@ class PluginBase:
     def execute_command(self, line):
         return "\r\n", True
 
-    def execute_keystroke(self, *args, **kwargs):
+    def execute_keystroke(self, char, line_buffer):
         return "", False
+
+    def send_status(self, status):
+        self._channel.send(status)
 
     def respond(
         self,

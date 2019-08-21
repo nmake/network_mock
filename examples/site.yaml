@@ -2,9 +2,9 @@
   gather_facts: False
   vars:
     platform_show:
-      eos: show run
-      ios: show run
-      nxos: show run
+      eos: show running-config
+      ios: show running-config
+      nxos: show running-config
       vyos: show config
 
   tasks:

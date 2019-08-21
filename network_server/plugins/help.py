@@ -1,15 +1,12 @@
 """ A plugin for handling help and ?
 """
-import logging
 from typing import Pattern
 from network_server.plugins import PluginBase
 
 
 class Help(PluginBase):
-    def __init__(self, *args, **kwargs):
-        super(Help, self).__init__(*args, **kwargs)
-        self._logger = logging.getLogger(self.__class__.__name__)
-        logging.basicConfig(level=logging.INFO)
+    """ Help
+    """
 
     def commands(self):
         return ["help"]

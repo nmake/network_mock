@@ -1,6 +1,5 @@
 """ A plugin for handling help and ?
 """
-import logging
 import re
 from network_server.plugins import PluginBase
 
@@ -11,8 +10,6 @@ class History(PluginBase):
 
     def __init__(self, *args, **kwargs):
         super(History, self).__init__(*args, **kwargs)
-        self._logger = logging.getLogger(self.__class__.__name__)
-        logging.basicConfig(level=logging.INFO)
 
     def commands(self):
         return ["history", re.compile(r"!\d+")]
