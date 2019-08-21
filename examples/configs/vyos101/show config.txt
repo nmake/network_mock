@@ -2,18 +2,18 @@ interfaces {
     ethernet eth0 {
         address dhcp
         duplex auto
-        hw-id 52:54:00:22:8e:73
+        hw-id 52:54:00:9e:26:47
         smp-affinity auto
         speed auto
     }
     ethernet eth1 {
-        duplex auto
-        hw-id 52:54:00:2a:09:c8
-        smp-affinity auto
-        speed auto
+        hw-id 52:54:00:6a:a3:5b
     }
     ethernet eth2 {
-        hw-id 52:54:00:20:a4:b0
+        duplex auto
+        hw-id 52:54:00:55:6d:d0
+        smp-affinity auto
+        speed auto
     }
     loopback lo {
     }

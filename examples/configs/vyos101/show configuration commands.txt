@@ -1,0 +1,31 @@
+set interfaces ethernet eth0 address 'dhcp'
+set interfaces ethernet eth0 duplex 'auto'
+set interfaces ethernet eth0 hw-id '52:54:00:9e:26:47'
+set interfaces ethernet eth0 smp-affinity 'auto'
+set interfaces ethernet eth0 speed 'auto'
+set interfaces ethernet eth1 hw-id '52:54:00:6a:a3:5b'
+set interfaces ethernet eth2 duplex 'auto'
+set interfaces ethernet eth2 hw-id '52:54:00:55:6d:d0'
+set interfaces ethernet eth2 smp-affinity 'auto'
+set interfaces ethernet eth2 speed 'auto'
+set interfaces loopback lo
+set service lldp
+set service ssh
+set system config-management commit-revisions '100'
+set system console device ttyS0 speed '9600'
+set system host-name 'vyos101'
+set system login user admin authentication encrypted-password '$6$51kq4PbCG9SkEdv$28bTVSNQyb1uiUPIWBVmWV1Mxy9WoMTBh.bCbT7ByEXepWkTGey4V67tU1DYPu2P3OpvUhpW7lfQpwn1VHkaM.'
+set system login user admin authentication plaintext-password ''
+set system login user admin level 'admin'
+set system login user bthornto authentication encrypted-password '$6$ljlCRmJw$hMp5dWNaC3/ZOeQhuYcft/h8P08yxiH4ZHVZhHUP7ef.noEtfGahLEhMYpzhdBvLPaKZgIIcgaOyr9K11L.5b.'
+set system login user bthornto authentication plaintext-password ''
+set system login user bthornto level 'admin'
+set system login user vyos authentication encrypted-password '$6$MGbdYWGRyw$wdrKMBO/lajEDXhaWUOoSLTs.2M71ngVK.Grg9039v63caAXkEd9ss1mq4txW.FSPRaNIuGTZOix.YuuZSyoP0'
+set system login user vyos authentication plaintext-password ''
+set system login user vyos level 'admin'
+set system ntp server 0.pool.ntp.org
+set system ntp server 1.pool.ntp.org
+set system ntp server 2.pool.ntp.org
+set system syslog global facility all level 'info'
+set system syslog global facility protocols level 'debug'
+set system time-zone 'UTC'

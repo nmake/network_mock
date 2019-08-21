@@ -9,8 +9,6 @@ from network_server.plugins import PluginBase
 class ShowFileServer(PluginBase):
     def __init__(self, *args, **kwargs):
         super(ShowFileServer, self).__init__(*args, **kwargs)
-        self._logger = logging.getLogger(self.__class__.__name__)
-        logging.basicConfig(level=logging.INFO)
 
     def commands(self):
         hostdir = "{}/{}".format(self._directory, self._hostname)

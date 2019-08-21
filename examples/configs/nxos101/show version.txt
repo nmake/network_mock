@@ -1,31 +1,3 @@
-Cisco NX-OS Software
-Copyright (c) 2002-2018, Cisco Systems, Inc. All rights reserved.
-Nexus 9000v software ("Nexus 9000v Software") and related documentation,
-files or other reference materials ("Documentation") are
-the proprietary property and confidential information of Cisco
-Systems, Inc. ("Cisco") and are protected, without limitation,
-pursuant to United States and International copyright and trademark
-laws in the applicable jurisdiction which provide civil and criminal
-penalties for copying or distribution without Cisco's authorization.
-
-Any use or disclosure, in whole or in part, of the Nexus 9000v Software
-or Documentation to any third party for any purposes is expressly
-prohibited except as otherwise authorized by Cisco in writing.
-The copyrights to certain works contained herein are owned by other
-third parties and are used and distributed under license. Some parts
-of this software may be covered under the GNU Public License or the
-GNU Lesser General Public License. A copy of each such license is
-available at
-http://www.gnu.org/licenses/gpl.html and
-http://www.gnu.org/licenses/lgpl.html
-***************************************************************************
-*  Nexus 9000v is strictly limited to use for evaluation, demonstration   *
-*  and NX-OS education. Any use or disclosure, in whole or in part of     *
-*  the Nexus 9000v Software or Documentation to any third party for any   *
-*  purposes is expressly prohibited except as otherwise authorized by     *
-*  Cisco in writing.                                                      *
-***************************************************************************
-nxos101# show version
 Cisco Nexus Operating System (NX-OS) Software
 TAC support: http://www.cisco.com/tac
 Documents: http://www.cisco.com/en/US/products/ps9372/tsd_products_support_series_home.html
@@ -39,26 +11,26 @@ http://www.gnu.org/licenses/gpl.html.
 Nexus 9000v is a demo version of the Nexus Operating System
 
 Software
-  BIOS: version
+  BIOS: version 
  NXOS: version 9.2(2)
-  BIOS compile time:
+  BIOS compile time:  
   NXOS image file is: bootflash:///nxos.9.2.2.bin
   NXOS compile time:  11/4/2018 21:00:00 [11/05/2018 06:11:06]
 
 
 Hardware
-  cisco Nexus9000 9000v Chassis
+  cisco Nexus9000 9000v Chassis 
    with 8035024 kB of memory.
-  Processor Board ID 9XGWGSIM487
+  Processor Board ID 9X7XF2UK3Q1
 
   Device name: nxos101
   bootflash:    3509454 kB
-Kernel uptime is 0 day(s), 5 hour(s), 57 minute(s), 3 second(s)
+Kernel uptime is 2 day(s), 7 hour(s), 1 minute(s), 53 second(s)
 
-Last reset
+Last reset 
   Reason: Unknown
-  System version:
-  Service:
+  System version: 
+  Service: 
 
 plugin
   Core Plugin, Ethernet Plugin

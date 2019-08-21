@@ -1,9 +1,0 @@
-- hosts: vyos101
-  gather_facts: False
-  tasks:
-  - vyos_interfaces:
-      state: deleted
-    check_mode: True
-    register: output
-  - debug:
-      var: output

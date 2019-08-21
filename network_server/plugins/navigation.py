@@ -4,6 +4,9 @@ from network_server.plugins import PluginBase
 
 
 class Navigation(PluginBase):
+    """ Navigation
+    """
+
     def keystrokes(self):
         return [b"\x7f"]
 

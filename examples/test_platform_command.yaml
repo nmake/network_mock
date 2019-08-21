@@ -3,7 +3,7 @@
   tasks:
   - eos_command:
       commands:
-      - show run
+      - show running-config
     register: output
   - debug:
       var: output
@@ -13,7 +13,7 @@
   tasks:
   - ios_command:
       commands:
-      - show run
+      - show running-config
     register: output
   - debug:
       var: output
@@ -23,7 +23,7 @@
   tasks:
   - nxos_command:
       commands:
-      - show run
+      - show running-config
     register: output
   - debug:
       var: output
