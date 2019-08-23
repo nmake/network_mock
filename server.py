@@ -1,30 +1,10 @@
-#!/usr/bin/env python
-""" start the server
-"""
-import concurrent.futures
-import logging
 import argparse
+import logging
+import asyncio
 import sys
-import traceback
-from network_server import NetworkServer
-
-
-def _spawn(*args, **kwargs):
-    while True:
-        try:
-            NetworkServer(*args, **kwargs).run()
-        except ModuleNotFoundError as exc:
-            LOGGER.error(
-                "Requirements not satisfied for enabled plugins. Please see docuemention."
-            )
-
-            LOGGER.error(exc)
-            sys.exit(1)
-        except Exception as exc:  # pylint: disable=W0703
-            if str(exc) in ["Socket is closed"]:
-                LOGGER.warning(exc)
-            else:
-                traceback.print_exc()
+import asyncssh
+from network_server.asyncssh_server import start_server
+import concurrent.futures
 
 
 def _parse_args():
@@ -84,21 +64,20 @@ def _parse_args():
     return args
 
 
+def _spawn(port, args):
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(start_server(port, **vars(args)))
+    except (OSError, asyncssh.Error) as exc:
+        sys.exit("Error starting server: " + str(exc))
+    loop.run_forever()
+
+
 def main():
-    """ main
-    """
     args = _parse_args()
     executor = concurrent.futures.ProcessPoolExecutor(args.server_count)
     futures = [
-        executor.submit(
-            _spawn,
-            host_key_path=args.ssh_key,
-            port=args.base_port + item,
-            directory=args.directory,
-            password=args.password,
-            username=args.username,
-            plugins=args.enable_plugins,
-        )
+        executor.submit(_spawn, port=args.base_port + item, args=args)
         for item in range(0, args.server_count)
     ]
     for future in concurrent.futures.as_completed(futures):

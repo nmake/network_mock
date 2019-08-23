@@ -8,7 +8,7 @@ class PluginBase:
     """
 
     def __init__(self, *args, **kwargs):
-        self._channel = kwargs["channel"]
+        self._process = kwargs["process"]
         self._commands = kwargs["commands"]
         self._directory = kwargs["directory"]
         self._history = kwargs["history"]
@@ -30,7 +30,7 @@ class PluginBase:
         return "", False
 
     def send_status(self, status):
-        self._channel.send(status)
+        self._process.stdout.write(status)
 
     def respond(
         self,
