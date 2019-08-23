@@ -57,7 +57,7 @@ class CommandRunner(PluginBase):
                 " 'set os=nxos'"
             )
         if messages:
-            return "\r\n" + "\r\n".join(messages) + "\r\n"
+            return "\n" + "\n".join(messages) + "\n"
         if "commands" in self._meta:
             commands = [
                 command.strip()
@@ -91,7 +91,7 @@ class CommandRunner(PluginBase):
                     messages.append(
                         "{}: '{}' returned an error".format(host, command)
                     )
-        return "\r\n" + "\r\n".join(messages) + "\r\n"
+        return "\n" + "\n".join(messages) + "\n"
 
     def _hosts(self):
         if "hosts" in self._meta:

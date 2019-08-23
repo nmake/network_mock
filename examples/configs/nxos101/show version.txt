@@ -25,7 +25,7 @@ Hardware
 
   Device name: nxos101
   bootflash:    3509454 kB
-Kernel uptime is 4 day(s), 4 hour(s), 22 minute(s), 2 second(s)
+Kernel uptime is 4 day(s), 4 hour(s), 30 minute(s), 8 second(s)
 
 Last reset 
   Reason: Unknown
