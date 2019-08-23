@@ -25,5 +25,5 @@ class ShowFileServer(PluginBase):
             "{}/{}/{}.txt".format(self._directory, self._hostname, line), "r"
         ) as fhand:
             content = fhand.read()
-        content = "\r\n" + "\r\n".join(content.splitlines()) + "\r\n"
+        content = "\n" + "\n".join(content.splitlines()) + "\n"
         return self.respond(output=content)

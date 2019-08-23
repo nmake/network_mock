@@ -1,13 +1,8 @@
-""" the network server
-"""
 import logging
 import re
-import socket
-import sys
 from typing import Pattern
-import paramiko
-from network_server.paramiko_server import ParamikoServer
-from network_server.plugins.navigation import Navigation
+import asyncssh
+
 from network_server.plugins.show_file_server import ShowFileServer
 from network_server.plugins.configure import Configure
 from network_server.plugins.help import Help
@@ -18,78 +13,77 @@ PLUGIN_REF = {
     "showfs": ShowFileServer,
     "help": Help,
     "history": History,
-    "navigation": Navigation,
 }
 
 
-class NetworkServer:
-    """ network_server
+async def ssh_session(process):
+    """ kick off the ssh session and hand off
+    """
+    username = process.get_extra_info("username")
+    if "::" in username:
+        username, hostname = username.split("::")
+    else:
+        hostname = "mock"
+    session = SSHSession(
+        username, hostname, process, **process.get_extra_info("user_args")
+    )
+    while True:
+        try:
+            while True:
+                res = await session.interactive()
+                if not res:
+                    process.exit(0)
+        except asyncssh.BreakReceived:
+            process.stdout.write("\r\n")
+
+
+class SSHSession:  # pylint: disable=R0902, R0903
+    """ ssh session
     """
 
-    def __init__(
-        self, host_key_path, port, directory, password, username, plugins
-    ):
+    def __init__(self, *args, **kwargs):
+        self._username = args[0]
         self._history = []
-        self._host_key_path = host_key_path
-        self._channel = None
+        self._hostname = args[1]
         self._context = False
-        self._directory = directory
-        self._hostname = None
-        self._logger = logging.getLogger(self.__class__.__name__)
-        logging.basicConfig(level=logging.INFO)
-        self._password = password
-        self._port = port
-        self._plugins = plugins
-        self._username = username
-        self._transport = None
-        self._prompt = "router#"
+        self._directory = kwargs["directory"]
+        self._plugins = kwargs["enable_plugins"]
         self._commands = {}
         self._keystrokes = {}
+        self._process = args[2]
+        self._prompt = self._hostname + "#"
+        self._logger = logging.getLogger(self.__class__.__name__)
         if "cmdrunner" in self._plugins:
             from network_server.plugins.command_runner import CommandRunner
 
             PLUGIN_REF["cmdrunner"] = CommandRunner
-
-    def run(self):
-        host_key = paramiko.RSAKey(filename=self._host_key_path)
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            sock.bind(("", self._port))
-        except Exception as exc:  # pylint: disable=W0703
-            self._logger.error("Bind failed: %s", str(exc))
-            sys.exit(1)
-        self._logger.info("SSH server bound to port %s", self._port)
-        sock.listen(100)
-        client, addr = sock.accept()
-        self._logger.info("Connection from %s on port %s", addr, self._port)
-        self._transport = paramiko.Transport(client)
-        self._transport.load_server_moduli()
-        self._transport.add_server_key(host_key)
-        server = ParamikoServer(
-            password=self._password, username=self._username
-        )
-        self._transport.start_server(server=server)
-        self._channel = self._transport.accept(20)
-        if self._channel is None:
-            sys.exit(1)
-        self._hostname = server.hostname
-        self._prompt = server.hostname + "#"
         self._load_plugins()
-        self._interactive()
 
-    def _handle_command(self, line):  # pylint: disable=R0911
+    async def interactive(self):
+        """ go interactive with the client
+        """
+        self._process.stdout.write("\r\n" + self._prompt)
+
+        while True:
+            user_input = await self._process.stdin.readline()
+            if user_input == "":
+                break
+            res = await self._handle_command(user_input.rstrip())
+            if not res:
+                break
+
+    async def _handle_command(self, line):  # pylint: disable=R0911
         self._history.append(line)
         # if in a context send all commands that way
         if self._context:
             response = self._context.execute_command(line)
-            self._respond(response)
-            return
+            await self._respond(response)
+            return True
         # check for exact match
         if line in self._commands:
             response = self._commands[line]["plugin"].execute_command(line)
-            self._respond(response)
-            return
+            await self._respond(response)
+            return True
         # check the regexs
         matches = [
             val
@@ -98,40 +92,15 @@ class NetworkServer:
         ]
         if matches:
             response = matches[0]["plugin"].execute_command(line)
-            self._respond(response)
-            return
+            await self._respond(response)
+            return True
 
         if line == "exit":
-            self._transport.close()
-            return
+            return False
 
         self._logger.info("%s: No match for '%s'", self._hostname, line)
-        self._send_prompt()
-        return
-
-    def _interactive(self):
-        fhandle = self._channel.makefile("rU")
-        line_buffer = []
-        self._send_prompt()
-        while not self._channel.closed:
-            char = fhandle.read(1)
-            self._channel.send(char)
-            if char in self._keystrokes:
-                response = self._keystrokes[char]["plugin"].execute_keystroke(
-                    char, line_buffer
-                )
-                self._channel.send(response["output"] or "")
-                if response["prompt"]:
-                    self._send_prompt()
-                if line_buffer:
-                    line_buffer = line_buffer[0:-1]
-
-            elif char not in [b"\r", b"\n"]:
-                line_buffer.append(char.decode("utf-8"))
-            else:
-                line = "".join(line_buffer)
-                line_buffer = []
-                self._handle_command(line)
+        await self._send_prompt()
+        return True
 
     def _load_plugins(self):
         plugins = [val for k, val in PLUGIN_REF.items() if k in self._plugins]
@@ -141,26 +110,24 @@ class NetworkServer:
                 directory=self._directory,
                 history=self._history,
                 hostname=self._hostname,
-                channel=self._channel,
+                process=self._process,
                 username=self._username,
             )
             commands = plugin_initd.commands()
             for command in commands:
                 self._commands[command] = {"plugin": plugin_initd}
-            keystrokes = plugin_initd.keystrokes()
-            for keystroke in keystrokes:
-                self._keystrokes[keystroke] = {"plugin": plugin_initd}
             self._logger.info("Enabled plugin: %s", plugin.__name__)
 
-    def _respond(self, response):
-        self._channel.send(response["output"])
+    async def _respond(self, response):
+        self._process.stdout.write(response["output"])
         self._context = response["context"]
         if response["new_prompt"]:
             self._prompt = response["new_prompt"]
         if response["issue_command"]:
             self._handle_command(response["issue_command"])
+            return
         if response["prompt"]:
-            self._send_prompt()
+            await self._send_prompt()
 
-    def _send_prompt(self):
-        self._channel.send("\r\n{}".format(self._prompt))
+    async def _send_prompt(self):
+        self._process.stdout.write(self._prompt)

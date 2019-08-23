@@ -21,7 +21,7 @@ class History(PluginBase):
                 "{}  {}".format(str(idx).rjust(3), cmd)
                 for idx, cmd in enumerate(self._history)
             ]
-            output = "\r\n" + "\r\n".join(formatted_history)
+            output = "\r\n" + "\r\n".join(formatted_history) + "\r\n"
             return self.respond(output=output)
         if re.match(r"!(?P<hnum>\d+)", line):
             command = re.match(r"!(?P<hnum>\d+)", line)
