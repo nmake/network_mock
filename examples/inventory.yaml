@@ -30,5 +30,5 @@ all:
     ansible_become: True
     ansible_become_method: enable
     ansible_connection: network_cli
-    ansible_port: "{{ 2200 + play_hosts.index(inventory_hostname) }}"
+    ansible_port: 2200 #"{{ 2200 + play_hosts.index(inventory_hostname) }}"
     ansible_host: localhost

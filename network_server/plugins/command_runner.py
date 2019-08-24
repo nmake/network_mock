@@ -4,7 +4,8 @@ import os
 import re
 import uuid
 from network_server.plugins import PluginBase
-
+from concurrent.futures import ThreadPoolExecutor
+import asyncio
 
 class CommandRunner(PluginBase):
     def __init__(self, *args, **kwargs):
@@ -35,7 +36,7 @@ class CommandRunner(PluginBase):
             return ["show config", "show configuration commands"]
         return []
 
-    def _handle_command(self, line):
+    async def _handle_command(self, line):
         line = line.rstrip()
         output = ""
         match = re.match(r"^set (?P<meta>.*)=(?P<value>.*)$", line)
@@ -44,10 +45,10 @@ class CommandRunner(PluginBase):
             self._meta[cap["meta"]] = cap["value"]
             output = ""
         elif line == "run":
-            output = self._run()
+            output = await self._run()
         return output
 
-    def _run(self):
+    async def _run(self):
         messages = []
         if "password" not in self._meta:
             messages.append("Password must be set 'set password=xxxx'")
@@ -71,7 +72,7 @@ class CommandRunner(PluginBase):
             inventory=self._inventory(),
         )
         self.send_status("\r\nRunning commands on devices....")
-        results = acr.run()
+        results = await acr.run()
         self.send_status("\r\nSaving command out into files....")
 
         messages = []
@@ -119,7 +120,7 @@ class CommandRunner(PluginBase):
         }
         return inventory
 
-    def execute_command(self, line):
+    async def execute_command(self, line):
         if not self._in_context:
             self._logger.info(
                 "%s: User entered cmdrunner mode", self._hostname
@@ -135,7 +136,7 @@ class CommandRunner(PluginBase):
             )
         else:
             self._logger.info("%s:%s", self._hostname, line)
-            output = self._handle_command(line)
+            output = await self._handle_command(line)
             return self.respond(context=self, output=output)
 
         return self.respond(context=self, new_prompt="cmdrunner>")
@@ -150,7 +151,7 @@ class AnsibleCommandsRunner:  # pylint: disable=R0903
         self._hosts = hosts
         self._inventory = inventory
 
-    def run(self):
+    async def run(self):
         """ run
         """
         tasks = [
@@ -160,12 +161,14 @@ class AnsibleCommandsRunner:  # pylint: disable=R0903
         playbook = [
             {"hosts": self._hosts, "gather_facts": False, "tasks": tasks}
         ]
-        playbook_result = ansible_runner.run(
-            playbook=playbook,
-            inventory=self._inventory,
-            json_mode=True,
-            quiet=True,
-        )
+        executor = ThreadPoolExecutor(max_workers=3)
+        loop = asyncio.get_event_loop()
+        playbook_result = await loop.run_in_executor(executor,
+                                                     lambda: ansible_runner.run
+                                                     (playbook=playbook,
+                                                     inventory=self._inventory,
+                                                     json_mode=True,
+                                                     quiet=True))
         results_by_host = {}
         desired_events = [
             "runner_on_ok",

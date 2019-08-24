@@ -14,7 +14,7 @@ class Help(PluginBase):
     def keystrokes(self):
         return [b"?"]
 
-    def execute_command(self, line):
+    async def execute_command(self, line):
         self._logger.info("%s: %s", self._hostname, line)
         output = "\r\n\r\nGENERAL COMMANDS"
         output += "\r\n{:<20}{:<50}".format("exit", "Exit the session")

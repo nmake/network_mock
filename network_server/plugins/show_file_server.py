@@ -19,7 +19,7 @@ class ShowFileServer(PluginBase):
         ]
         return files
 
-    def execute_command(self, line):
+    async def execute_command(self, line):
         self._logger.info("%s: %s", self._hostname, line)
         with open(
             "{}/{}/{}.txt".format(self._directory, self._hostname, line), "r"
