@@ -14,7 +14,7 @@ class History(PluginBase):
     def commands(self):
         return ["history", re.compile(r"!\d+")]
 
-    def execute_command(self, line):
+    async def execute_command(self, line):
         self._logger.info("%s: %s", self._hostname, line)
         if line == "history":
             formatted_history = [

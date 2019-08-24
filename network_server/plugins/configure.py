@@ -16,7 +16,7 @@ class Configure(PluginBase):
     def commands(self):
         return [re.compile("conf.*")]
 
-    def execute_command(self, line):
+    async def execute_command(self, line):
         if not self._in_context:
             self._logger.info(
                 "%s: User entered configure mode  with '%s'",

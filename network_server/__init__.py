@@ -76,12 +76,12 @@ class SSHSession:  # pylint: disable=R0902, R0903
         self._history.append(line)
         # if in a context send all commands that way
         if self._context:
-            response = self._context.execute_command(line)
+            response = await self._context.execute_command(line)
             await self._respond(response)
             return True
         # check for exact match
         if line in self._commands:
-            response = self._commands[line]["plugin"].execute_command(line)
+            response = await self._commands[line]["plugin"].execute_command(line)
             await self._respond(response)
             return True
         # check the regexs
@@ -91,7 +91,7 @@ class SSHSession:  # pylint: disable=R0902, R0903
             if isinstance(k, Pattern) and re.match(k, line)
         ]
         if matches:
-            response = matches[0]["plugin"].execute_command(line)
+            response = await matches[0]["plugin"].execute_command(line)
             await self._respond(response)
             return True
 

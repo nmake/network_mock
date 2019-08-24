@@ -51,7 +51,7 @@ def _parse_args():
     parser.add_argument(
         "-c",
         "--server-count",
-        default=10,
+        default=1,
         type=int,
         help="The number of SSH servers to start.",
     )
@@ -64,25 +64,12 @@ def _parse_args():
     return args
 
 
-def _spawn(port, args):
-    loop = asyncio.get_event_loop()
-    try:
-        loop.run_until_complete(start_server(port, **vars(args)))
-    except (OSError, asyncssh.Error) as exc:
-        sys.exit("Error starting server: " + str(exc))
-    loop.run_forever()
-
-
 def main():
     args = _parse_args()
-    executor = concurrent.futures.ProcessPoolExecutor(args.server_count)
-    futures = [
-        executor.submit(_spawn, port=args.base_port + item, args=args)
-        for item in range(0, args.server_count)
-    ]
-    for future in concurrent.futures.as_completed(futures):
-        future.result()
-
+    loop = asyncio.get_event_loop()
+    for item in range(0, args.server_count):
+        loop.create_task(start_server(args.base_port + item, **vars(args)))
+    loop.run_forever()
 
 if __name__ == "__main__":
     LOGGER = logging.getLogger()
