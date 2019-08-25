@@ -7,6 +7,7 @@ from network_server.plugins import PluginBase
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
+
 class CommandRunner(PluginBase):
     def __init__(self, *args, **kwargs):
         super(CommandRunner, self).__init__(*args, **kwargs)
@@ -90,7 +91,9 @@ class CommandRunner(PluginBase):
                         )
                 else:
                     messages.append(
-                        "{}: '{}' returned an error".format(host, command)
+                        "{}: '{}' returned an error: {}".format(
+                            host, command, result["message"]
+                        )
                     )
         return "\n" + "\n".join(messages) + "\n"
 
@@ -163,12 +166,15 @@ class AnsibleCommandsRunner:  # pylint: disable=R0903
         ]
         executor = ThreadPoolExecutor(max_workers=3)
         loop = asyncio.get_event_loop()
-        playbook_result = await loop.run_in_executor(executor,
-                                                     lambda: ansible_runner.run
-                                                     (playbook=playbook,
-                                                     inventory=self._inventory,
-                                                     json_mode=True,
-                                                     quiet=True))
+        playbook_result = await loop.run_in_executor(
+            executor,
+            lambda: ansible_runner.run(
+                playbook=playbook,
+                inventory=self._inventory,
+                json_mode=True,
+                quiet=True,
+            ),
+        )
         results_by_host = {}
         desired_events = [
             "runner_on_ok",
@@ -182,6 +188,7 @@ class AnsibleCommandsRunner:  # pylint: disable=R0903
                     {
                         "event": event["event"],
                         "stdout": event["event_data"]["res"].get("stdout"),
+                        "message": event["event_data"]["res"].get("msg"),
                     }
                     for event in list(playbook_result.events)
                     if event["event"] in desired_events
