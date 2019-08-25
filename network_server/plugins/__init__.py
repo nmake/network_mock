@@ -11,7 +11,6 @@ class PluginBase:
         self._process = kwargs["process"]
         self._commands = kwargs["commands"]
         self._directory = kwargs["directory"]
-        self._history = kwargs["history"]
         self._hostname = kwargs["hostname"]
         self.username = kwargs["username"]
         self._logger = logging.getLogger(self.__class__.__name__)
