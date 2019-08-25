@@ -124,9 +124,6 @@ class SSHSession:  # pylint: disable=R0902, R0903
         self._context = response["context"]
         if response["new_prompt"]:
             self._prompt = response["new_prompt"]
-        if response["issue_command"]:
-            self._handle_command(response["issue_command"])
-            return
         if response["prompt"]:
             await self._send_prompt()
 
