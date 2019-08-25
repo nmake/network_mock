@@ -3,7 +3,7 @@
   vars:
     commands:
     - cmdrunner
-    - "set password={{ ansible_password }}"
+    - !unsafe "set password={{ lookup('env', 'ansible_ssh_pass') }}"
     - "set os={{ ansible_network_os }}"
     - run
   tasks:
