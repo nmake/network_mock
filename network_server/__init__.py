@@ -36,7 +36,7 @@ async def ssh_session(process):
         except asyncssh.BreakReceived:
             process.stdout.write("\r\n")
         except BrokenPipeError:
-            process.exit(0)
+            process.connection_lost()
 
 
 class SSHSession:  # pylint: disable=R0902, R0903
