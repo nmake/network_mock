@@ -35,6 +35,8 @@ async def ssh_session(process):
                     process.exit(0)
         except asyncssh.BreakReceived:
             process.stdout.write("\r\n")
+        except BrokenPipeError:
+            process.connection_lost()
 
 
 class SSHSession:  # pylint: disable=R0902, R0903
@@ -43,7 +45,6 @@ class SSHSession:  # pylint: disable=R0902, R0903
 
     def __init__(self, *args, **kwargs):
         self._username = args[0]
-        self._history = []
         self._hostname = args[1]
         self._context = False
         self._directory = kwargs["directory"]
@@ -73,7 +74,6 @@ class SSHSession:  # pylint: disable=R0902, R0903
                 break
 
     async def _handle_command(self, line):  # pylint: disable=R0911
-        self._history.append(line)
         # if in a context send all commands that way
         if self._context:
             response = await self._context.execute_command(line)
@@ -81,7 +81,9 @@ class SSHSession:  # pylint: disable=R0902, R0903
             return True
         # check for exact match
         if line in self._commands:
-            response = await self._commands[line]["plugin"].execute_command(line)
+            response = await self._commands[line]["plugin"].execute_command(
+                line
+            )
             await self._respond(response)
             return True
         # check the regexs
@@ -108,7 +110,6 @@ class SSHSession:  # pylint: disable=R0902, R0903
             plugin_initd = plugin(
                 commands=self._commands,
                 directory=self._directory,
-                history=self._history,
                 hostname=self._hostname,
                 process=self._process,
                 username=self._username,
@@ -123,9 +124,6 @@ class SSHSession:  # pylint: disable=R0902, R0903
         self._context = response["context"]
         if response["new_prompt"]:
             self._prompt = response["new_prompt"]
-        if response["issue_command"]:
-            self._handle_command(response["issue_command"])
-            return
         if response["prompt"]:
             await self._send_prompt()
 

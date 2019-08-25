@@ -4,6 +4,8 @@ import logging
 from os.path import isfile, join, splitext
 from os import listdir
 from network_server.plugins import PluginBase
+from concurrent.futures import ThreadPoolExecutor
+import asyncio
 
 
 class ShowFileServer(PluginBase):
@@ -21,9 +23,16 @@ class ShowFileServer(PluginBase):
 
     async def execute_command(self, line):
         self._logger.info("%s: %s", self._hostname, line)
-        with open(
-            "{}/{}/{}.txt".format(self._directory, self._hostname, line), "r"
-        ) as fhand:
-            content = fhand.read()
+        filename = "{}/{}/{}.txt".format(self._directory, self._hostname, line)
+        executor = ThreadPoolExecutor(max_workers=1)
+        loop = asyncio.get_event_loop()
+        content = await loop.run_in_executor(
+            executor, lambda: self._read_file(filename)
+        )
         content = "\n" + "\n".join(content.splitlines()) + "\n"
         return self.respond(output=content)
+
+    @staticmethod
+    def _read_file(filename):
+        with open(filename, "r") as fhand:
+            return fhand.read()

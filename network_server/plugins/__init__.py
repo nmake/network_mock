@@ -11,7 +11,6 @@ class PluginBase:
         self._process = kwargs["process"]
         self._commands = kwargs["commands"]
         self._directory = kwargs["directory"]
-        self._history = kwargs["history"]
         self._hostname = kwargs["hostname"]
         self.username = kwargs["username"]
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -32,17 +31,9 @@ class PluginBase:
     def send_status(self, status):
         self._process.stdout.write(status)
 
-    def respond(
-        self,
-        output="",
-        issue_command="",
-        prompt=True,
-        context=False,
-        new_prompt=False,
-    ):
+    def respond(self, output="", prompt=True, context=False, new_prompt=False):
         return {
             "output": output,
-            "issue_command": issue_command,
             "prompt": prompt,
             "context": context,
             "new_prompt": new_prompt,
