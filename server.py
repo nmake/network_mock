@@ -74,5 +74,5 @@ def main():
 
 if __name__ == "__main__":
     LOGGER = logging.getLogger()
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     main()
