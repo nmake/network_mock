@@ -27,16 +27,15 @@ async def ssh_session(process):
     session = SSHSession(
         username, hostname, process, **process.get_extra_info("user_args")
     )
-    while True:
+    # pylint: disable=W0212
+    while process.channel._send_state == "open":
         try:
-            while True:
+            while process.channel._send_state == "open":
                 res = await session.interactive()
                 if not res:
                     process.exit(0)
         except asyncssh.BreakReceived:
             process.stdout.write("\r\n")
-        except BrokenPipeError:
-            process.process_exited()
 
 
 class SSHSession:  # pylint: disable=R0902, R0903
