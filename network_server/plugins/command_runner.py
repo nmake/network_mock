@@ -223,6 +223,7 @@ class AnsibleCommandsRunner:  # pylint: disable=R0903
                     }
                     for event in self._events
                     if event.get("event_data", {}).get("task") == task["name"]
+                    and event["event_data"]["host"] == host
                 ]
                 if res:
                     results_by_host[host][

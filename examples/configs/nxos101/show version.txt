@@ -21,11 +21,11 @@ Software
 Hardware
   cisco Nexus9000 9000v Chassis 
    with 8035024 kB of memory.
-  Processor Board ID 9AFWYTGZFM3
+  Processor Board ID 9X7XF2UK3Q1
 
-  Device name: nxos103
+  Device name: nxos101
   bootflash:    3509454 kB
-Kernel uptime is 8 day(s), 19 hour(s), 53 minute(s), 47 second(s)
+Kernel uptime is 7 day(s), 2 hour(s), 22 minute(s), 12 second(s)
 
 Last reset 
   Reason: Unknown
