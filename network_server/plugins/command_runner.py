@@ -15,13 +15,15 @@ MINUS = "\u2796"  # heavy minus
 
 
 class CommandRunner(PluginBase):
+    PLUGIN_HELP = "Run commands on devices and save to the local file system."
+
     def __init__(self, *args, **kwargs):
         super(CommandRunner, self).__init__(*args, **kwargs)
         self._in_context = False
         self._meta = {}
 
     def commands(self):
-        return ["cmdrunner"]
+        return ["cmdrunner", "help cmdrunner"]
 
     def _default_commands(self):
         if self._meta["os"] == "ios":
@@ -115,6 +117,54 @@ class CommandRunner(PluginBase):
 
         return
 
+    @staticmethod
+    def _help():
+        output = ["CMDRUNNER"]
+        output.append(
+            "\nRun commands on devices and save the output to the local file system.\n"
+        )
+        output.append(
+            "{:<40}{:<50}".format("cmdrunner", "Enter the cmdrunner context")
+        )
+        output.append(
+            "{:<40}{:<50}".format("exit", "Exit the cmdrunner context")
+        )
+        output.append(
+            "{:<40}{:<50}".format(
+                "set commands=show ver,show run",
+                "Specify the commands to run and save. (default=see help)",
+            )
+        )
+        output.append(
+            "{:<40}{:<50}".format(
+                "set hosts=nxos101,nxos102",
+                "Specify the target host to collect from. (default=current host)",
+            )
+        )
+        output.append(
+            "{:<40}{:<50}".format(
+                "set os=xxxx",
+                "Set the OS for the target devices. (default=none)",
+            )
+        )
+        output.append(
+            "{:<40}{:<50}".format(
+                "set password=xxxx", "Set the password. (default=None)"
+            )
+        )
+        output.append(
+            "{:<40}{:<50}".format(
+                "set username=xxxx", "Set the username. (default=current user)"
+            )
+        )
+        output.append(
+            "{:<40}{:<50}".format(
+                "run",
+                "Collect the command output and save to local file system",
+            )
+        )
+        return "\n" + "\n".join(output) + "\n"
+
     def _hosts(self):
         if "hosts" in self._meta:
             return {host: {} for host in self._meta["hosts"].split(",")}
@@ -140,12 +190,18 @@ class CommandRunner(PluginBase):
         return inventory
 
     async def execute_command(self, line):
-        if not self._in_context:
+        if line == "cmdrunner":
             self._logger.info(
                 "%s: User entered cmdrunner mode", self._hostname
             )
             self._in_context = True
-        elif line in ["exit", "end"]:
+            return self.respond(context=self, new_prompt="cmdrunner>")
+        if line in ["help", "help cmdrunner"]:
+            help_output = self._help()
+            if self._in_context:
+                return self.respond(context=self, output=help_output)
+            return self.respond(context=False, output=help_output)
+        if line in ["exit", "end"]:
             self._in_context = False
             self._logger.info(
                 "%s: User exited configure mode.", self._hostname
@@ -153,12 +209,9 @@ class CommandRunner(PluginBase):
             return self.respond(
                 context=False, new_prompt="{}#".format(self._hostname)
             )
-        else:
-            self._logger.info("%s:%s", self._hostname, line)
-            await self._handle_command(line)
-            return self.respond(context=self)
-
-        return self.respond(context=self, new_prompt="cmdrunner>")
+        self._logger.info("%s:%s", self._hostname, line)
+        await self._handle_command(line)
+        return self.respond(context=self)
 
 
 class AnsibleCommandsRunner:  # pylint: disable=R0903

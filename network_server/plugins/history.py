@@ -8,6 +8,8 @@ class History(PluginBase):
     """ history
     """
 
+    PLUGIN_HELP = "Show the command history."
+
     def __init__(self, *args, **kwargs):
         super(History, self).__init__(*args, **kwargs)
         self._history = None

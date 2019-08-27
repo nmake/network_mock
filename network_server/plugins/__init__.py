@@ -7,6 +7,8 @@ class PluginBase:
     """ pluginbase
     """
 
+    PLUGIN_HELP = ""
+
     def __init__(self, *args, **kwargs):
         self._process = kwargs["process"]
         self._commands = kwargs["commands"]
