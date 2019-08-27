@@ -8,6 +8,8 @@ class Help(PluginBase):
     """ Help
     """
 
+    PLUGIN_HELP = "Show the help."
+
     def commands(self):
         return ["help"]
 
@@ -16,23 +18,25 @@ class Help(PluginBase):
 
     async def execute_command(self, line):
         self._logger.info("%s: %s", self._hostname, line)
-        output = "\r\n\r\nGENERAL COMMANDS"
-        output += "\r\n{:<20}{:<50}".format("exit", "Exit the session")
-        output += "\r\n{:<20}{:<50}".format("help", "Get help")
-        output += "\r\n{:<20}{:<50}".format("!x", "Run cmd from history")
-        output += "\r\n\r\nOTHER AVAILABLE COMMANDS"
+        output = "\nGENERAL COMMANDS"
+        output += "\n{:<20}{:<50}".format("exit", "Exit the session")
+        output += "\n{:<20}{:<50}".format("help", "Get help")
+        output += "\n{:<20}{:<50}".format("!x", "Run cmd from history")
+        output += "\n\nOTHER AVAILABLE COMMANDS"
         output += (
-            "\r\n"
-            + "\r\n".join(
+            "\n"
+            + "\n".join(
                 sorted(
                     [
-                        key
-                        for key in self._commands.keys()
+                        "{:<20}{:<50}".format(
+                            key, plugin["plugin"].PLUGIN_HELP
+                        )
+                        for key, plugin in self._commands.items()
                         if not isinstance(key, Pattern)
                     ]
                 )
             )
-            + "\r\n"
+            + "\n"
         )
         return self.respond(output=output)
 
