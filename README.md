@@ -86,6 +86,14 @@ ansible_user: "{{ lookup('env', 'ansible_ssh_user') }}::{{ inventory_hostname }}
 
 The ansible invnetory should be updated such that each host uses a unique port on the SSH mock server and the `ansible_host` set to where the server was started.
 
+Single port:
+```
+vars:
+  ansible_port: 2200
+  ansible_host: localhost
+```
+
+Multiple ports:
 ```
 vars:
   ansible_port: "{{ 2200 + play_hosts.index(inventory_hostname) }}"
@@ -117,9 +125,12 @@ See the examples directory for a few examples
 By default the following plugins are enabled:
 
 `confmode`: Provide a `configure` context, only the prompt changes.
+
 `showfs`: Return file output for commands
+
 `help`: Provide the help
-`history`: Provides the command history and `!5` support for previous commands
+
+`history`: Provides the command history and `!x` support for previous commands
 
 The enabled plugins can be changed from the command line.
 
@@ -145,7 +156,7 @@ Enable the `cmdrunner` functionality from the command line when the server is st
 python server.py -k ./test_rsa.key -e confmode,showfs,help,history,cmdrunner
 ```
 
-`cmdrunner` uses a series of `set` for configuration.
+`cmdrunner` uses a series of `set` commands for configuration.
 
 ```
 cmdrunner>help
@@ -164,9 +175,9 @@ set username=xxxx                       Set the username. (default=current user)
 run                                     Collect the command output and save to local file system
 ```
 
-Example:
+#### Examples:
 
-Collect the default command output from several eos devices:
+**Collect the default command output from several eos devices:**
 
 ```
 nxos101#cmdrunner
@@ -194,8 +205,9 @@ Running...
 [✔] [eos103] wrote './examples/configs/eos103/show hostname | json.txt'
 [✔] [eos103] wrote './examples/configs/eos103/show running-config.txt'
 ```
+(all hosts need to have the same OS)
 
-Commands can be specified at the command line:
+**Commands can be specified at the command line:**
 
 ```
 cmdrunner>set commands=show vrf,show vlan
