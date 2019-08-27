@@ -1,0 +1,4 @@
+VLAN  Name                             Status    Ports
+----- -------------------------------- --------- -------------------------------
+1     default                          active    Et1, Et2
+5     VLAN0005                         active    Cpu

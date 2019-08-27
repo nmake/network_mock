@@ -41,7 +41,7 @@ def _parse_args():
         "--enable-plugins",
         type=lambda s: [item for item in s.split(",")],
         help="The plugins that should be enabled",
-        default="confmode,showfs,help,history,navigation,showfs",
+        default="confmode,help,history,showfs",
     )
 
     parser.add_argument(
